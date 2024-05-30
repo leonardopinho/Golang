@@ -6,7 +6,7 @@ import (
 	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/core/middleware"
 	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/db"
 	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/models"
-	"github.com/valyala/fastjson"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/utils"
 	"io"
 	"log"
 	"net/http"
@@ -23,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// server
+	log.Println("Starting server...")
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /cotacao", getDollarPriceHandle)
 	log.Fatal(http.ListenAndServe(":8080", middleware.RecoveryMiddleware(mux)))
@@ -60,7 +60,6 @@ func getDollarPriceHandle(w http.ResponseWriter, _ *http.Request) {
 func getUSDBRL() (*models.USDBRL, error) {
 	url := "https://economia.awesomeapi.com.br/json/last/USD-BRL"
 
-	// TODO: lazy context in first time
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	defer cancel()
 
@@ -83,28 +82,11 @@ func getUSDBRL() (*models.USDBRL, error) {
 	}
 
 	var current models.USDBRL
-	err = parseJson(body, "USDBRL", &current)
+	err = utils.ParseJson(body, "USDBRL", &current)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	return &current, nil
-}
-
-func parseJson[T interface{}](data []byte, key string, result *T) error {
-	var fastJson fastjson.Parser
-	v, err := fastJson.Parse(string(data))
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	jsonData := v.Get(key)
-	if err := json.Unmarshal([]byte(jsonData.String()), &result); err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	return nil
 }
