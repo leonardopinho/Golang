@@ -1,12 +1,12 @@
-package main
+package server
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/core/middleware"
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/db"
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/models"
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/utils"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/internal/middleware"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/internal/utils"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/pkg/db"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/pkg/db/models"
 	"io"
 	"log"
 	"net/http"
@@ -17,20 +17,25 @@ type BidResponse struct {
 	Value string `json:"value"`
 }
 
-func main() {
+func Start() error {
 	err := db.InitDb()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	log.Println("Starting server...")
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /cotacao", getDollarPriceHandle)
-	log.Fatal(http.ListenAndServe(":8080", middleware.RecoveryMiddleware(mux)))
+	if err := http.ListenAndServe(":8080", middleware.RecoveryMiddleware(mux)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getDollarPriceHandle(w http.ResponseWriter, _ *http.Request) {
-	price, err := getUSDBRL()
+	price, err := GetUSDBRL()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -42,7 +47,7 @@ func getDollarPriceHandle(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	// save in database
-	err = db.SaveUSDBRL(price)
+	_, err = db.SaveUSDBRL(price)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusRequestTimeout)
 	}
@@ -57,7 +62,7 @@ func getDollarPriceHandle(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func getUSDBRL() (*models.USDBRL, error) {
+func GetUSDBRL() (*models.USDBRL, error) {
 	url := "https://economia.awesomeapi.com.br/json/last/USD-BRL"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)

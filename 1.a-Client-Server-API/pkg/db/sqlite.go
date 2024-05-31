@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/models"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/pkg/db/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -27,7 +27,7 @@ func InitDb() error {
 	return nil
 }
 
-func SaveUSDBRL(data *models.USDBRL) error {
+func SaveUSDBRL(data *models.USDBRL) (*models.USDBRL, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
 
@@ -42,8 +42,29 @@ func SaveUSDBRL(data *models.USDBRL) error {
 
 	if err != nil {
 		log.Fatal(err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return data, nil
+}
+
+func DeleteUSDBRL(data *models.USDBRL) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	err := db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		result := tx.Delete(&data)
+		if result.Error != nil {
+			log.Fatal(result.Error)
+			return result.Error
+		}
+		return nil
+	})
+
+	if err != nil {
+		log.Fatal(err)
+		return false, err
+	}
+
+	return true, nil
 }

@@ -1,10 +1,10 @@
-package main
+package client
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/models"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/pkg/db/models"
 	"io"
 	"log"
 	"net/http"
@@ -12,13 +12,15 @@ import (
 	"time"
 )
 
-func main() {
+func Start() error {
 	log.Println("Starting client...")
 
 	err := getDollar()
 	if err != nil {
-		log.Println("Error: ", err)
+		return err
 	}
+
+	return nil
 }
 
 func getDollar() error {
@@ -58,22 +60,29 @@ func getDollar() error {
 	}
 
 	// save txt
-	saveBidLog(bid)
+	err = SaveBidLog(bid)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func saveBidLog(bid models.Bid) {
-	f, err := os.Create("./bid.txt")
+func SaveBidLog(bid models.Bid) error {
+	f, err := os.Create("bid.txt")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		return err
 	}
 
 	txt := fmt.Sprintf("Dólar:%s", bid.Value)
 	_, err = f.Write([]byte(txt))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		return err
 	}
 
 	log.Println("BID successfully saved in log.")
+
+	return nil
 }
