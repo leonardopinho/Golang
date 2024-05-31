@@ -9,12 +9,10 @@ import (
 func TestChallenge(t *testing.T) {
 	// server
 	go func() {
-
 		err := server.Start()
 		if err != nil {
 			t.Error(err)
 		}
-
 	}()
 
 	// client
