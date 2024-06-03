@@ -1,4 +1,4 @@
-package client
+package main
 
 import (
 	"context"
@@ -12,15 +12,11 @@ import (
 	"time"
 )
 
-func Start() error {
-	log.Println("Starting client...")
-
+func main() {
 	err := getDollar()
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-
-	return nil
 }
 
 func getDollar() error {

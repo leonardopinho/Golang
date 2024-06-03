@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"context"
@@ -17,10 +17,10 @@ type BidResponse struct {
 	Value string `json:"value"`
 }
 
-func Start() error {
+func main() {
 	err := db.InitDb()
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	log.Println("Starting server...")
@@ -28,10 +28,9 @@ func Start() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /cotacao", getDollarPriceHandle)
 	if err := http.ListenAndServe(":8080", middleware.RecoveryMiddleware(mux)); err != nil {
-		return err
+		log.Fatal(err)
 	}
 
-	return nil
 }
 
 func getDollarPriceHandle(w http.ResponseWriter, _ *http.Request) {
