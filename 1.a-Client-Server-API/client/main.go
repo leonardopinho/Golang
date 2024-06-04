@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/pkg/db/models"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/client/pkg/db/models"
 	"io"
 	"log"
 	"net/http"

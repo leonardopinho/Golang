@@ -1,4 +1,4 @@
-module github.com/leonardopinho/GoLang/1.a-Client-Server-API
+module github.com/leonardopinho/GoLang/1.a-Client-Server-API/server
 
 go 1.22
 

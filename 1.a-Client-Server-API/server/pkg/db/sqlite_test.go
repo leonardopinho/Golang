@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/pkg/db/models"
+	"github.com/leonardopinho/GoLang/1.a-Client-Server-API/server/pkg/db/models"
 	"testing"
 )
 
