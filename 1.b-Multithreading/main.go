@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type CepResponse struct {
+type ViaCepResponse struct {
 	Cep         string `json:"cep"`
 	Logradouro  string `json:"logradouro"`
 	Complemento string `json:"complemento"`
@@ -32,11 +32,13 @@ type BrasilApiResponse struct {
 }
 
 func main() {
+	cep := "40140650"
+
 	c1 := make(chan *BrasilApiResponse)
-	c2 := make(chan *CepResponse)
+	c2 := make(chan *ViaCepResponse)
 
 	go func() {
-		resp, err := BuscaBrasilAPI("40155250")
+		resp, err := BuscaBrasilAPI(cep)
 		if err != nil {
 			panic(err)
 		}
@@ -44,7 +46,7 @@ func main() {
 	}()
 
 	go func() {
-		resp, err := BuscaViaCep("40155250")
+		resp, err := BuscaViaCep(cep)
 		if err != nil {
 			panic(err)
 		}
@@ -56,12 +58,12 @@ func main() {
 		fmt.Println("[BrasilAPI]", result)
 	case result := <-c2:
 		fmt.Println("[ViaCep]", result)
-	case <-time.After(time.Second):
+	case <-time.After(1 * time.Second):
 		fmt.Println("[ERROR] Timeout")
 	}
 }
 
-func BuscaViaCep(cep string) (*CepResponse, error) {
+func BuscaViaCep(cep string) (*ViaCepResponse, error) {
 	if len(cep) != 8 {
 		return nil, errors.New("CEP deve conter exatamente 8 caracteres.")
 	}
@@ -78,7 +80,7 @@ func BuscaViaCep(cep string) (*CepResponse, error) {
 		return nil, err
 	}
 
-	var result CepResponse
+	var result ViaCepResponse
 	if err := json.Unmarshal(res, &result); err != nil {
 		return nil, err
 	}
@@ -111,8 +113,8 @@ func BuscaBrasilAPI(cep string) (*BrasilApiResponse, error) {
 	return &result, nil
 }
 
-func convertToCepResponse(b BrasilApiResponse) (*CepResponse, error) {
-	result := &CepResponse{
+func convertToCepResponse(b BrasilApiResponse) (*ViaCepResponse, error) {
+	result := &ViaCepResponse{
 		Cep:        b.Cep,
 		Logradouro: b.Street,
 		Bairro:     b.Neighborhood,
