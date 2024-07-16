@@ -112,14 +112,3 @@ func BuscaBrasilAPI(cep string) (*BrasilApiResponse, error) {
 
 	return &result, nil
 }
-
-func convertToCepResponse(b BrasilApiResponse) (*ViaCepResponse, error) {
-	result := &ViaCepResponse{
-		Cep:        b.Cep,
-		Logradouro: b.Street,
-		Bairro:     b.Neighborhood,
-		Localidade: b.City,
-		Uf:         b.State,
-	}
-	return result, nil
-}
