@@ -1,0 +1,13 @@
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN go mod tidy
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o rate-limit cmd/api/main.go
+
+FROM scratch
+EXPOSE 8080
+COPY --from=builder /app/rate-limit .
+CMD ["./rate-limit"]
