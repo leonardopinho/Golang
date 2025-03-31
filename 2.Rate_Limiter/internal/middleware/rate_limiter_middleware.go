@@ -11,19 +11,13 @@ import (
 )
 
 var (
-	instance *rate_limiter.MemoryRateLimiter
+	limiter *rate_limiter.MemoryRateLimiter
 )
 
 func RateLimiterMiddleware(cfg *config.Config) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			instance = rate_limiter.NewInMemoryRateLimiter(*cfg)
-
-			token := r.Header.Get("API_KEY")
-			if !instance.AllowToken(token, cfg.RateLimitToken, time.Duration(cfg.BlockTimeRateLimitToken)*time.Second) {
-				http.Error(w, "Too Many Requests (Token Limit)", http.StatusTooManyRequests)
-				return
-			}
+			limiter = rate_limiter.NewInMemoryRateLimiter(*cfg)
 
 			ip, _, err := net.SplitHostPort(r.RemoteAddr)
 			if err != nil {
@@ -31,9 +25,20 @@ func RateLimiterMiddleware(cfg *config.Config) func(next http.Handler) http.Hand
 				return
 			}
 
-			if !instance.AllowIP(ip, cfg.RateLimit, time.Duration(cfg.BlockTimeRateLimit)*time.Second) {
-				http.Error(w, "Too Many Requests (IP Limit)", http.StatusTooManyRequests)
-				return
+			token := r.Header.Get("API_KEY")
+
+			if token != "" {
+				if !limiter.AllowToken(token, cfg.RateLimitToken, time.Duration(cfg.BlockTimeRateLimitToken)*time.Second) {
+					log.Println("Too Many Requests (Token Limit)")
+					http.Error(w, "You have reached the maximum number of requests or actions allowed within a certain time frame.", http.StatusTooManyRequests)
+					return
+				}
+			} else {
+				if !limiter.AllowIP(ip, cfg.RateLimit, time.Duration(cfg.BlockTimeRateLimit)*time.Second) {
+					log.Println("Too Many Requests (IP Limit)")
+					http.Error(w, "You have reached the maximum number of requests or actions allowed within a certain time frame.", http.StatusTooManyRequests)
+					return
+				}
 			}
 
 			defer func() {

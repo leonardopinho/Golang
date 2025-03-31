@@ -12,18 +12,16 @@ var (
 )
 
 type MemoryRateLimiter struct {
-	config    config.Config
-	mu        sync.Mutex
-	ipData    map[string]*RateLimitConfig
-	tokenData map[string]*RateLimitConfig
+	config config.Config
+	mu     sync.Mutex
+	data   map[string]*RateLimitConfig
 }
 
 func NewInMemoryRateLimiter(cfg config.Config) *MemoryRateLimiter {
 	once.Do(func() {
 		limiter = &MemoryRateLimiter{
-			config:    cfg,
-			ipData:    make(map[string]*RateLimitConfig),
-			tokenData: make(map[string]*RateLimitConfig),
+			config: cfg,
+			data:   make(map[string]*RateLimitConfig),
 		}
 	})
 	limiter.Cleanup()
@@ -34,15 +32,16 @@ func (r *MemoryRateLimiter) AllowIP(ip string, maxRequests int, window time.Dura
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	cfg, exists := r.ipData[ip]
+	cfg, exists := r.data[ip]
 	if !exists {
 		cfg = &RateLimitConfig{
-			Requests:  maxRequests,
-			Window:    window,
-			LastReset: time.Now(),
-			Count:     0,
+			Requests:    maxRequests,
+			RequestType: IP,
+			Window:      window,
+			LastReset:   time.Now(),
+			Count:       0,
 		}
-		r.ipData[ip] = cfg
+		r.data[ip] = cfg
 	}
 
 	return checkAndIncrement(cfg, maxRequests, window)
@@ -52,15 +51,18 @@ func (r *MemoryRateLimiter) AllowToken(token string, maxRequests int, window tim
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	cfg, exists := r.tokenData[token]
+	// TODO: validação do token
+
+	cfg, exists := r.data[token]
 	if !exists {
 		cfg = &RateLimitConfig{
-			Requests:  maxRequests,
-			Window:    window,
-			LastReset: time.Now(),
-			Count:     0,
+			Requests:    maxRequests,
+			RequestType: TOKEN,
+			Window:      window,
+			LastReset:   time.Now(),
+			Count:       0,
 		}
-		r.tokenData[token] = cfg
+		r.data[token] = cfg
 	}
 
 	return checkAndIncrement(cfg, maxRequests, window)
@@ -72,21 +74,22 @@ func (r *MemoryRateLimiter) Cleanup() {
 			r.mu.Lock()
 			now := time.Now()
 
-			for key, rateCfg := range r.ipData {
-				if now.Sub(rateCfg.LastReset) > time.Duration(r.config.BlockTimeRateLimit)*time.Second {
-					delete(r.ipData, key)
-				}
-			}
-
-			for key, rateCfg := range r.tokenData {
-				if now.Sub(rateCfg.LastReset) > time.Duration(r.config.BlockTimeRateLimit)*time.Second {
-					delete(r.tokenData, key)
+			for key, rateCfg := range r.data {
+				if now.Sub(rateCfg.LastReset) > time.Duration(checkTimeLimit(rateCfg, r))*time.Second {
+					delete(r.data, key)
 				}
 			}
 
 			r.mu.Unlock()
 		}
 	}()
+}
+
+func checkTimeLimit(rateCfg *RateLimitConfig, r *MemoryRateLimiter) int {
+	if rateCfg.RequestType == IP {
+		return r.config.BlockTimeRateLimit
+	}
+	return r.config.BlockTimeRateLimitToken
 }
 
 func checkAndIncrement(cfg *RateLimitConfig, maxRequests int, window time.Duration) bool {

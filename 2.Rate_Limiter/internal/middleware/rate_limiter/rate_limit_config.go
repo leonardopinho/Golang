@@ -5,10 +5,16 @@ import (
 	"time"
 )
 
+const (
+	IP = iota
+	TOKEN
+)
+
 type RateLimitConfig struct {
-	Requests  int
-	Window    time.Duration
-	LastReset time.Time
-	Count     int
-	mu        sync.Mutex
+	Requests    int
+	RequestType int
+	Window      time.Duration
+	LastReset   time.Time
+	Count       int
+	mu          sync.Mutex
 }

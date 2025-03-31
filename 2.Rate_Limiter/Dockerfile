@@ -1,10 +1,9 @@
-FROM golang:1.22-alpine AS builder
-
+FROM golang:1.22.5 AS builder
 WORKDIR /app
-
 COPY . .
 
 RUN go mod tidy
+
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o rate-limit cmd/api/main.go
 
 FROM scratch
