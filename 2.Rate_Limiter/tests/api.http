@@ -1,2 +1,8 @@
+### Rate limiter by IP
 GET http://localhost:8080/ HTTP/1.1
 Content-Type: text/plain
+
+### Rate limiter by Token
+GET http://localhost:8080/ HTTP/1.1
+Content-Type: application/json
+API_KEY: eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjViOWE0ZmQyY2U3MzliNzQ4M2E1ZjZiMTFhOWVmODk4In0.eyJpc3MiOiJodHRwczovL2lkcC5sb2NhbCIsImF1ZCI6ImFwaTEiLCJzdWIiOiI1YmU4NjM1OTA3M2M0MzRiYWQyZGEzOTMyMjIyZGFiZSIsImNsaWVudF9pZCI6Im15X2NsaWVudF9hcHAiLCJleHAiOjE3NDM0MzA4NDMsImlhdCI6MTc0MzQyNzI0MywianRpIjoiZWMzZjRkYTNkOWY2NjRmODU0MjQxMTY1YzUyOGVmMWMifQ.BSNjukY76NEVbq2OH4LSGaK2pfvrVFqZHdZ3At3fD1MOMCfdwZSfDX1CGFWgIgTi-sXXJ59quHwg0X1UXTsYHA
