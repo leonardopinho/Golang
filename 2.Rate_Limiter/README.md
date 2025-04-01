@@ -30,7 +30,7 @@ $ go mod tidy
 
 Para iniciar o servidor, utilize o comando:
 ```bash
-docker-compose up --build
+docker build -t stress_cli .
 ```
 
 ### Testes
