@@ -6,22 +6,18 @@ import (
 	"time"
 )
 
-var (
-	limiter *MemoryRateLimiter
-	once    sync.Once
-)
-
 type MemoryRateLimiter struct {
 	config config.Config
-	mu     sync.Mutex
+	mu     *sync.Mutex
 	data   map[string]*RateLimitConfig
 }
 
-func NewInMemoryRateLimiter(cfg config.Config) *MemoryRateLimiter {
+func NewInMemoryRateLimiter(cfg config.Config) RateLimiterInterface {
 	once.Do(func() {
 		limiter = &MemoryRateLimiter{
 			config: cfg,
 			data:   make(map[string]*RateLimitConfig),
+			mu:     &sync.Mutex{},
 		}
 	})
 	limiter.Cleanup()

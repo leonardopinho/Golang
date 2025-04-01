@@ -98,7 +98,10 @@ func benchmark(url string, totalRequests, concurrency int, reportFile string) {
 				result.ErrorMessage = fmt.Sprintf("HTTP 429: %s", string(bodyBytes))
 			}
 
-			resp.Body.Close()
+			err = resp.Body.Close()
+			if err != nil {
+				panic(err)
+			}
 
 			results[i] = result
 		}(i)

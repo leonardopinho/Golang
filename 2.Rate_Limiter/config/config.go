@@ -14,6 +14,10 @@ type Config struct {
 	RateLimitToken          int
 	BlockTimeRateLimit      int
 	BlockTimeRateLimitToken int
+	Strategy                int
+	RedisAddr               string
+	RedisPassword           string
+	RedisDB                 int
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -43,11 +47,29 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("error converting BLOCK_TIME_RATE_LIMIT_TOKEN: %w", err)
 	}
 
+	strategy, err := strconv.Atoi(os.Getenv("STRATEGY"))
+	if err != nil {
+		return nil, fmt.Errorf("error converting STRATEGY: %w", err)
+	}
+
+	redisAddr := os.Getenv("REDIS_ADDR")
+
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	redisDb, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+	if err != nil {
+		return nil, fmt.Errorf("error converting REDIS_DB: %w", err)
+	}
+
 	config := &Config{
 		RateLimit:               rateLimit,
 		RateLimitToken:          rateLimitToken,
 		BlockTimeRateLimit:      blockTimeRateLimit,
 		BlockTimeRateLimitToken: blockTimeRateLimitToken,
+		Strategy:                strategy,
+		RedisAddr:               redisAddr,
+		RedisPassword:           redisPassword,
+		RedisDB:                 redisDb,
 	}
 
 	return config, nil

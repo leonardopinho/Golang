@@ -5,7 +5,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/leonardopinho/GoLang/2.Rate_Limiter/config"
 	handlers "github.com/leonardopinho/GoLang/2.Rate_Limiter/internal/infra/webserver/handlers"
-	custom_middleware "github.com/leonardopinho/GoLang/2.Rate_Limiter/internal/middleware"
+	customMiddleware "github.com/leonardopinho/GoLang/2.Rate_Limiter/internal/middleware"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Use(custom_middleware.RateLimiterMiddleware(cfg))
+	r.Use(customMiddleware.RateLimiterMiddleware(cfg))
 	r.Use(middleware.Recoverer)
 
 	r.Get("/", handlers.IndexHandler)

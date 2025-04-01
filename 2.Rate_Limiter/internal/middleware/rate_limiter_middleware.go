@@ -11,13 +11,17 @@ import (
 )
 
 var (
-	limiter *rate_limiter.MemoryRateLimiter
+	limiter rate_limiter.RateLimiterInterface
 )
 
 func RateLimiterMiddleware(cfg *config.Config) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			limiter = rate_limiter.NewInMemoryRateLimiter(*cfg)
+			if cfg.Strategy == rate_limiter.MEMORY {
+				limiter = rate_limiter.NewInMemoryRateLimiter(*cfg)
+			} else if cfg.Strategy == rate_limiter.REDIS {
+				limiter = rate_limiter.NewRedisRateLimiter(*cfg)
+			}
 
 			ip, _, err := net.SplitHostPort(r.RemoteAddr)
 			if err != nil {
