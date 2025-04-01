@@ -30,7 +30,7 @@ var rootCmd = &cobra.Command{
 	Use:   "bench",
 	Short: "Simulador de requisições concorrentes.",
 	Run: func(cmd *cobra.Command, args []string) {
-		benchmark(url, total, concurrency, output)
+		Benchmark(url, total, concurrency, output)
 	},
 }
 
@@ -51,7 +51,7 @@ func init() {
 	rootCmd.MarkPersistentFlagRequired("url")
 }
 
-func benchmark(url string, totalRequests, concurrency int, reportFile string) {
+func Benchmark(url string, totalRequests, concurrency int, reportFile string) {
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, concurrency)
 	results := make([]Result, totalRequests)
@@ -110,10 +110,10 @@ func benchmark(url string, totalRequests, concurrency int, reportFile string) {
 	wg.Wait()
 	totalTime := time.Since(start)
 
-	generateReport(results, totalTime, totalRequests, concurrency, reportFile)
+	GenerateReport(url, results, totalTime, totalRequests, concurrency, reportFile)
 }
 
-func generateReport(results []Result, totalTime time.Duration, totalRequests int, concurrency int, filename string) {
+func GenerateReport(url string, results []Result, totalTime time.Duration, totalRequests int, concurrency int, filename string) {
 	var successCount, failCount int
 	for _, res := range results {
 		if res.ErrorMessage == "" {
