@@ -38,11 +38,6 @@ docker build -t stress_cli .
 ```
 go test ./...
 ```
-ou
-```
-make ip_test
-make token_test
-```
 
 ---
 
