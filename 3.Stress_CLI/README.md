@@ -26,3 +26,9 @@ Projeto desenvolvido em **Go** com o objetivo de criar uma ferramenta de **teste
 ```
 $ go mod tidy
 ```
+
+### Testes
+
+```
+go test ./...
+```

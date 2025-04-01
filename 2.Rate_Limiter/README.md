@@ -36,12 +36,12 @@ docker-compose up --build
 ### Testes
 
 ```
-$ make tests
+go test ./...
 ```
 ou
 ```
-$ make ip_test
-$ make token_test
+make ip_test
+make token_test
 ```
 
 ---
