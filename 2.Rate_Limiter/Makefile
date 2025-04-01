@@ -1,7 +1,8 @@
-up:
-	@echo "Docker Compose..."
-	@docker compose up -d
-	@echo "✅ Services are up."
+build:
+	@docker docker-compose up --build
 
-test:
-	@echo 'rodar testes'
+ip_test:
+	sh tests/ip_test.sh
+
+token_test:
+	sh tests/token_test.sh
