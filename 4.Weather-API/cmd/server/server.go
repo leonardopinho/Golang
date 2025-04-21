@@ -16,10 +16,12 @@ func Init() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	//r.Use(customMiddleware.RateLimiterMiddleware(cfg))
 	r.Use(middleware.Recoverer)
 
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {})
+
 	r.Get("/get_weather", handlers.WeatherHandler(cfg))
+
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		panic(err)
 	}

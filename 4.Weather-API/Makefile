@@ -5,15 +5,12 @@ tests:
 	go test ./... -v
 
 build:
-	@echo "Gerando build Docker..."
 	@docker build -t weather_api .
 
 run:
-	@echo "Iniciando container Docker..."
 	@docker run --rm -p 8080:8080 --name weather_api_container weather_api
 
 server:
-	@echo "Iniciando servidor..."
 	@go run main.go
 
 check:
