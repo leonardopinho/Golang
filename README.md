@@ -12,6 +12,3 @@ Este repositório reúne projetos desenvolvidos como desafios técnicos, combina
 **Leonardo Pinho**
 - [GitHub](github.com/leonardopinho)
 - Email: [contato@leonardopinho.com](mailto:contato@leonardopinho.com)
-
-find . -type f -name '._*'
-find . -type f -name '._*' -delete
