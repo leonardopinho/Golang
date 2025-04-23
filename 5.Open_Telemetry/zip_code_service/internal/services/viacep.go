@@ -40,6 +40,7 @@ func (v *ViaCepService) GetLocation(cep string, ctx context.Context, tracer trac
 	}
 
 	url := v.Config.CepServiceURL + "/ws/" + cep + "/json/"
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, domain.ErrNotFoundZipcode
