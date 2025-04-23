@@ -1,18 +1,20 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
 RUN apk update && apk upgrade && apk add --no-cache ca-certificates
 
-COPY . .
+COPY weather_service/. .
+COPY .env /app/.env
 
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o weather_api
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o weather_service
 
 FROM scratch
-WORKDIR /app
+WORKDIR /app/project_b
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /app/.env .
-COPY --from=builder /app/weather_api .
+COPY --from=builder /app/.env /app
 
-ENTRYPOINT ["./weather_api"]
+COPY --from=builder /app/weather_service .
+
+ENTRYPOINT ["./weather_service"]

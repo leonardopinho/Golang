@@ -17,9 +17,9 @@ services:
     image: openzipkin/zipkin:latest
     restart: always
     ports:
-      - 9411:9411
+      - "9411:9411"
 
-  zip_code_service:
+  zip_code_service: # Service A
     build:
       context: .
       dockerfile: zip_code_service/Dockerfile
@@ -27,10 +27,24 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - OTEL_SERVICE_NAME=zip-code-service
+      - OTEL_SERVICE_NAME=zip_code_service
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
       - SERVICE_B_URL=http://weather_service:8081
     depends_on:
-#      - projeto-b
+      - weather_service
+      - zipkin
+      - otel-collector
+
+  weather_service: # Service B
+    build:
+      context: .
+      dockerfile: weather_service/Dockerfile
+    container_name: weather_service
+    ports:
+      - "8081:8081"
+    environment:
+      - OTEL_SERVICE_NAME=weather_service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+    depends_on:
       - zipkin
       - otel-collector
