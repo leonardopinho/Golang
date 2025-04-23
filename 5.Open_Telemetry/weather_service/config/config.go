@@ -22,7 +22,6 @@ import (
 type Config struct {
 	WeatherApiKey     string
 	WeatherServiceURL string
-	CepServiceURL     string
 	OTELConfig        OTELConfig
 	Tracer            trace.Tracer
 }
@@ -41,11 +40,9 @@ func LoadConfig(path string) (*Config, error) {
 
 	weatherApiKey := os.Getenv("OPEN_WEATHERMAP_SERVICE_API_KEY")
 	weatherServiceURL := os.Getenv("OPEN_WEATHERMAP_SERVICE")
-	cepServiceURL := os.Getenv("VIA_CEP_SERVICE")
 
 	config := &Config{
 		WeatherApiKey:     weatherApiKey,
-		CepServiceURL:     cepServiceURL,
 		WeatherServiceURL: weatherServiceURL,
 		OTELConfig: OTELConfig{
 			ServiceName:  os.Getenv("OTEL_SERVICE_NAME"),

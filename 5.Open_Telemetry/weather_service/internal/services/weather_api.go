@@ -39,7 +39,7 @@ func (w OpenWeatherService) GetTemperature(location string) (*OpenWeatherAPIResp
 	if err := json.NewDecoder(resp.Body).Decode(&data.Weather); err != nil {
 		return nil, domain.ErrWeatherServiceInvalidResponse
 	}
-	data.WeatherDetails = entity.NewWeatherDetails(data.Weather.Current.TempC)
+	data.WeatherDetails = entity.NewWeatherDetails(data.Weather)
 
 	return &data, nil
 }

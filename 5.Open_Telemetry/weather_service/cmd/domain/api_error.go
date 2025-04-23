@@ -20,4 +20,10 @@ var (
 		Message: "failed to process weather data",
 		Status:  http.StatusInternalServerError,
 	}
+
+	ErrInvalidHTTPMethod = &APIError{
+		Code:    "INVALID_HTTP_METHOD",
+		Message: "method not allowed",
+		Status:  http.StatusMethodNotAllowed,
+	}
 )

@@ -54,21 +54,26 @@ type Weather struct {
 }
 
 type WeatherDetails struct {
+	City   string  `json:"city"`
 	Temp_C float64 `json:"temp_C"`
 	Temp_F float64 `json:"temp_F"`
 	Temp_K float64 `json:"temp_K"`
 }
 
-func NewWeatherDetails(celcius float64) *WeatherDetails {
-	return ConvertTemperature(celcius)
+func NewWeatherDetails(data *Weather) *WeatherDetails {
+	return ConvertTemperature(data)
 }
 
-func ConvertTemperature(temp_celcius float64) *WeatherDetails {
+func ConvertTemperature(data *Weather) *WeatherDetails {
+	city := data.Location.Name
+	temp_celcius := data.Current.TempC
+
 	celcius, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", temp_celcius), 64)
 	fahrenheit, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", temp_celcius*1.8+32), 64)
 	kelvin, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", temp_celcius+273), 64)
 
 	return &WeatherDetails{
+		City:   city,
 		Temp_C: celcius,
 		Temp_F: fahrenheit,
 		Temp_K: kelvin,
