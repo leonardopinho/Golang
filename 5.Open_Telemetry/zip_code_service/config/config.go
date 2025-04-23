@@ -31,7 +31,7 @@ type OTELConfig struct {
 }
 
 func LoadConfig(path string) (*Config, error) {
-	envPath := filepath.Join(path, "../", ".env")
+	envPath := filepath.Join(path, ".", ".env")
 
 	if err := godotenv.Load(envPath); err != nil {
 		log.Printf("Could not load .env: %v", err)
