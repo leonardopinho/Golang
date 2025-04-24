@@ -8,6 +8,10 @@ type APIError struct {
 	Status  int    `json:"-"`
 }
 
+func (a APIError) Error() string {
+	return a.Message
+}
+
 var (
 	ErrWeatherServiceUnavailable = &APIError{
 		Code:    "WEATHER_SERVICE_UNAVAILABLE",
@@ -19,11 +23,5 @@ var (
 		Code:    "WEATHER_INVALID_RESPONSE",
 		Message: "failed to process weather data",
 		Status:  http.StatusInternalServerError,
-	}
-
-	ErrInvalidHTTPMethod = &APIError{
-		Code:    "INVALID_HTTP_METHOD",
-		Message: "method not allowed",
-		Status:  http.StatusMethodNotAllowed,
 	}
 )

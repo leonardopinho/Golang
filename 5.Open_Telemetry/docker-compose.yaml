@@ -1,4 +1,21 @@
 services:
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:latest
+    restart: always
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
   otel-collector:
     image: otel/opentelemetry-collector:latest
     container_name: otel-collector
@@ -7,10 +24,19 @@ services:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
       - "4317:4317"  # OTLP gRPC
-      - "55681:55681" # Legacy OTLP
       - "8888:8888"  # Collector metrics
+      - "8889:8889"  # Collector metrics
     depends_on:
       - zipkin
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
 
   zipkin:
     container_name: zipkin
@@ -29,7 +55,7 @@ services:
     environment:
       - OTEL_SERVICE_NAME=zip_code_service
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - SERVICE_B_URL=http://weather_service:8081
+      - WEATHER_SERVICE_URL=http://weather_service:8081/get_weather
     depends_on:
       - weather_service
       - zipkin

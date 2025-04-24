@@ -20,9 +20,10 @@ import (
 )
 
 type Config struct {
-	CepServiceURL string
-	OTELConfig    OTELConfig
-	Tracer        trace.Tracer
+	CepServiceURL     string
+	WeatherServiceURL string
+	OTELConfig        OTELConfig
+	Tracer            trace.Tracer
 }
 
 type OTELConfig struct {
@@ -39,12 +40,19 @@ func LoadConfig(path string) (*Config, error) {
 
 	cepServiceURL := os.Getenv("VIA_CEP_SERVICE")
 
+	weatherURL := os.Getenv("WEATHER_SERVICE_URL")
+	if weatherURL == "" {
+		weatherURL = "http://127.0.0.1:8081/get_weather"
+	}
+
 	config := &Config{
-		CepServiceURL: cepServiceURL,
+		CepServiceURL:     cepServiceURL,
+		WeatherServiceURL: weatherURL,
 		OTELConfig: OTELConfig{
 			ServiceName:  os.Getenv("OTEL_SERVICE_NAME"),
 			CollectorURL: os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
 		},
+		Tracer: otel.Tracer("zip_code_microservice_tracer"),
 	}
 
 	return config, nil

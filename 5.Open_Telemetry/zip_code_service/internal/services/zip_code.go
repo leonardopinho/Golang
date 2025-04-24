@@ -6,24 +6,21 @@ import (
 	"github.com/leonardopinho/GoLang/5.Open_Telemetry/zip_code_service/cmd/domain"
 	"github.com/leonardopinho/GoLang/5.Open_Telemetry/zip_code_service/config"
 	"github.com/leonardopinho/GoLang/5.Open_Telemetry/zip_code_service/internal/entity"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/trace"
 	"net/http"
 	"regexp"
 )
 
-type ViaCepService struct {
+type ZipCodeService struct {
 	Config *config.Config
 }
 
-func NewViaCepService(cfg *config.Config) *ViaCepService {
-	return &ViaCepService{
+func NewZipCodeService(cfg *config.Config) *ZipCodeService {
+	return &ZipCodeService{
 		Config: cfg,
 	}
 }
 
-func (v *ViaCepService) IsValid(cep string) bool {
+func (v *ZipCodeService) IsValid(cep string) bool {
 	match, _ := regexp.MatchString(`^\d{8}$`, cep)
 	if cep == "" || len(cep) < 8 || !match {
 		return false
@@ -31,15 +28,15 @@ func (v *ViaCepService) IsValid(cep string) bool {
 	return true
 }
 
-func (v *ViaCepService) GetLocation(cep string, ctx context.Context, tracer trace.Tracer) (*entity.Address, *domain.APIError) {
-	ctx, span := tracer.Start(ctx, "get_zip_code")
+func (v *ZipCodeService) GetLocation(ctx context.Context, zip_code string) (*entity.WeatherDetail, *domain.APIError) {
+	ctx, span := v.Config.Tracer.Start(ctx, "zip_code_service: GetLocation")
 	defer span.End()
 
-	if !v.IsValid(cep) {
+	if !v.IsValid(zip_code) {
 		return nil, domain.ErrInvalidZipcode
 	}
 
-	url := v.Config.CepServiceURL + "/ws/" + cep + "/json/"
+	url := v.Config.CepServiceURL + "/ws/" + zip_code + "/json/"
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -52,17 +49,21 @@ func (v *ViaCepService) GetLocation(cep string, ctx context.Context, tracer trac
 	}
 	defer resp.Body.Close()
 
-	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
-
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, domain.ErrNotFoundZipcode
 	}
 
 	var address entity.Address
-
 	if err = json.NewDecoder(resp.Body).Decode(&address); err != nil {
 		return nil, domain.ErrCEPInvalidResponse
 	}
 
-	return &address, nil
+	weather_service := NewWeatherService(v.Config)
+	weather, api_err := weather_service.GetWeatherByLocation(address, ctx)
+	if api_err != nil {
+		return nil, api_err
+	}
+
+	weather_detail := entity.NewWeatherDetail(weather)
+	return weather_detail, nil
 }

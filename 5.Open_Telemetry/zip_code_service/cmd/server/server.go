@@ -36,8 +36,6 @@ func Init() {
 		}
 	}()
 
-	cfg.Tracer = otel.Tracer("zip_code_microservice_tracer")
-
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)

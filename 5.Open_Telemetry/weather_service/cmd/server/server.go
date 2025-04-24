@@ -36,8 +36,6 @@ func Init() {
 		}
 	}()
 
-	cfg.Tracer = otel.Tracer("weather_microservice_tracer")
-
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -51,7 +49,7 @@ func Init() {
 	r.Post("/get_weather", handlers.WeatherHandler(cfg))
 
 	var srv = &http.Server{
-		Addr:    ":8080",
+		Addr:    ":8081",
 		Handler: r,
 	}
 

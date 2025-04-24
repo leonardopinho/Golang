@@ -1,7 +1,5 @@
-# goexpert-weather-api
+# GOEXPERT: weather-api
 Projeto do treinamento GoExpert(FullCycle).
-
-[deploy no Google Cloud Run](https://cloudrun-goexpert-747247348579.us-central1.run.app/get_weather?cep=13330250).
 
 [![Go](https://img.shields.io/badge/go-1.22-informational?logo=go)](https://go.dev)
 

@@ -48,6 +48,7 @@ func LoadConfig(path string) (*Config, error) {
 			ServiceName:  os.Getenv("OTEL_SERVICE_NAME"),
 			CollectorURL: os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
 		},
+		Tracer: otel.Tracer("weather_microservice_tracer"),
 	}
 
 	return config, nil

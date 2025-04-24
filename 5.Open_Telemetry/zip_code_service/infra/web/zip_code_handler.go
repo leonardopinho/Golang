@@ -5,8 +5,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/leonardopinho/GoLang/5.Open_Telemetry/zip_code_service/config"
 	"github.com/leonardopinho/GoLang/5.Open_Telemetry/zip_code_service/internal/services"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
 	"net/http"
 )
 
@@ -18,22 +16,18 @@ func ZipCodeHandler(cfg *config.Config) func(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		tracer := otel.Tracer("microservice-tracer")
-		carrier := propagation.HeaderCarrier(r.Header)
 		ctx := r.Context()
-		ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
-		ctx, span := tracer.Start(ctx, cfg.OTELConfig.ServiceName)
+		ctx, span := cfg.Tracer.Start(ctx, cfg.OTELConfig.ServiceName)
 		defer span.End()
 
-		cepService := services.NewViaCepService(cfg)
-		location, err := cepService.GetLocation(zip_code, ctx, tracer)
+		cepService := services.NewZipCodeService(cfg)
+		location, err := cepService.GetLocation(ctx, zip_code)
 		if err != nil {
 			http.Error(w, err.Message, err.Status)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-
 		if err := json.NewEncoder(w).Encode(&location); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
