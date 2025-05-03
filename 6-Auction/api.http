@@ -1,0 +1,13 @@
+### Create auction
+POST http://127.0.0.1:8080/auction HTTP/1.1
+Content-Type: application/json
+
+{"product_name": "Laptop", "category": "electronics", "description": "Laptop Top 32GB", "condition": 0}
+
+### Show open auctions
+GET http://127.0.0.1:8080/auction?status=0 HTTP/1.1
+Content-Type: application/json
+
+### Show closed auctions
+GET http://127.0.0.1:8080/auction?status=1 HTTP/1.1
+Content-Type: application/json
